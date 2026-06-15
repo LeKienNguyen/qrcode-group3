@@ -18,16 +18,10 @@ import Button from '../components/ui/Button.jsx'
 import { DownloadIcon } from '../components/icons/Icons.jsx'
 import { getQRs, getBlockedAttempts, getScans } from '../firebase.js'
 import { exportQrReport } from '../lib/csv.js'
+import { withTimeout } from '../lib/async.js'
 
 const DAYS_SHOWN = 7
 const LOAD_TIMEOUT_MS = 10000
-
-function withTimeout(promise, ms, message) {
-  return Promise.race([
-    promise,
-    new Promise((_, reject) => setTimeout(() => reject(new Error(message)), ms)),
-  ])
-}
 
 const TYPE_LABELS = { url: 'URL', wifi: 'Wi-Fi', email: 'Email', text: 'Text', phone: 'Phone' }
 const TYPE_COLORS = { url: '#1d4ed8', wifi: '#0ea5e9', email: '#f59e0b', text: '#10b981', phone: '#a855f7' }

@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import { getQRs, deleteQR } from '../firebase.js'
 import { LinkIcon, MailIcon, PhoneIcon, TextIcon, TrashIcon, WifiIcon } from './icons/Icons.jsx'
 import Button from './ui/Button.jsx'
+import { withTimeout } from '../lib/async.js'
 
 const TYPE_ICONS = { url: LinkIcon, wifi: WifiIcon, email: MailIcon, text: TextIcon, phone: PhoneIcon }
 const TYPE_LABELS = { url: 'URL', wifi: 'Wi-Fi', email: 'Email', text: 'Text', phone: 'Phone' }
+const LOAD_TIMEOUT_MS = 10000
 
 function formatDate(value) {
   if (!value) return 'Just now'
@@ -23,7 +25,7 @@ function QRHistory({ refreshSignal }) {
     let cancelled = false
     setStatus('loading')
 
-    getQRs()
+    withTimeout(getQRs(), LOAD_TIMEOUT_MS, 'History is unavailable right now.')
       .then((data) => {
         if (cancelled) return
         setRecords(data)
@@ -58,9 +60,7 @@ function QRHistory({ refreshSignal }) {
 
       {status === 'loading' && <p className="history-empty">Loading saved QR codes...</p>}
 
-      {status === 'error' && (
-        <p className="history-empty history-empty--error">Couldn't load saved QR codes: {error}</p>
-      )}
+      {status === 'error' && <p className="history-empty">{error}</p>}
 
       {status === 'ready' && records.length === 0 && (
         <p className="history-empty">No QR codes saved yet. Download one to save it here.</p>

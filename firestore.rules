@@ -1,0 +1,20 @@
+rules_version = '2';
+
+// This app has no authentication layer, so these collections are open to
+// anyone with the Firebase config (which is public in any client app).
+// Scope is limited to only the collections QR Code Studio uses.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /qrCodes/{id} {
+      allow read, write: if true;
+    }
+
+    match /blockedAttempts/{id} {
+      allow read, write: if true;
+    }
+
+    match /qr_scans/{id} {
+      allow read, write: if true;
+    }
+  }
+}

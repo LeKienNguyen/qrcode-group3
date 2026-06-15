@@ -555,6 +555,38 @@ textarea.field-input {
   color: var(--color-error);
 }
 
+.history-notice {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: var(--color-surface-muted, #f1f5f9);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.history-notice p {
+  margin: 0;
+}
+
+.history-notice-dismiss {
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.history-notice-dismiss:hover {
+  color: var(--color-text);
+}
+
 .history-list {
   display: flex;
   flex-direction: column;

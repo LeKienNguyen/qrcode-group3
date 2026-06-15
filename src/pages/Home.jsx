@@ -16,6 +16,9 @@ import { CONTENT_SAFETY_MESSAGES } from '../lib/moderation.js'
 import { readFileAsDataUrl } from '../lib/file.js'
 import { checkContentSafety } from '../lib/gemini.js'
 import { saveQR, logBlockedAttempt } from '../firebase.js'
+import { withTimeout } from '../lib/async.js'
+
+const SAVE_TIMEOUT_MS = 10000
 
 const INITIAL_FORM_DATA = {
   url: { url: '' },
@@ -47,7 +50,7 @@ function Home() {
   const [interactedTabs, setInteractedTabs] = useState({})
   const [customization, setCustomization] = useState(DEFAULT_CUSTOMIZATION)
   const [logoError, setLogoError] = useState('')
-  const [saveError, setSaveError] = useState('')
+  const [historyNotice, setHistoryNotice] = useState('')
   const [historyRefresh, setHistoryRefresh] = useState(0)
 
   const values = formData[activeTab]
@@ -169,8 +172,12 @@ function Home() {
 
   const handlePrepareDownload = async (content) => {
     try {
-      const id = await saveQR({ type: activeTab, content })
-      setSaveError('')
+      const id = await withTimeout(
+        saveQR({ type: activeTab, content }),
+        SAVE_TIMEOUT_MS,
+        "Couldn't connect to Firebase. Check your Firebase configuration in .env.local.",
+      )
+      setHistoryNotice('')
       setHistoryRefresh((value) => value + 1)
 
       if (activeTab === 'url') {
@@ -178,8 +185,8 @@ function Home() {
       }
 
       return content
-    } catch (err) {
-      setSaveError(`Couldn't save this QR code to your history: ${err.message}`)
+    } catch {
+      setHistoryNotice("History saving is unavailable right now, but your download still works.")
       return content
     }
   }
@@ -239,7 +246,19 @@ function Home() {
             />
           </div>
           <div className="history-wrapper">
-            {saveError && <p className="field-error">{saveError}</p>}
+            {historyNotice && (
+              <div className="history-notice">
+                <p>{historyNotice}</p>
+                <button
+                  type="button"
+                  className="history-notice-dismiss"
+                  onClick={() => setHistoryNotice('')}
+                  aria-label="Dismiss notice"
+                >
+                  ×
+                </button>
+              </div>
+            )}
             <QRHistory refreshSignal={historyRefresh} />
           </div>
         </div>
