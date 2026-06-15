@@ -8,8 +8,10 @@ import QRHistory from '../components/QRHistory.jsx'
 import UrlForm from '../components/forms/UrlForm.jsx'
 import WifiForm from '../components/forms/WifiForm.jsx'
 import EmailForm from '../components/forms/EmailForm.jsx'
-import { buildEmailValue, buildUrlValue, buildWifiValue } from '../lib/qrString.js'
-import { validateEmail, validateUrl, validateWifi } from '../lib/validation.js'
+import TextQRForm from '../components/TextQRForm.jsx'
+import PhoneQRForm from '../components/PhoneQRForm.jsx'
+import { buildEmailValue, buildPhoneValue, buildTextValue, buildUrlValue, buildWifiValue } from '../lib/qrString.js'
+import { validateEmail, validatePhone, validateText, validateUrl, validateWifi } from '../lib/validation.js'
 import { CONTENT_SAFETY_MESSAGES } from '../lib/moderation.js'
 import { readFileAsDataUrl } from '../lib/file.js'
 import { checkContentSafety } from '../lib/gemini.js'
@@ -19,6 +21,8 @@ const INITIAL_FORM_DATA = {
   url: { url: '' },
   wifi: { ssid: '', password: '', encryption: 'WPA', hidden: false },
   email: { email: '', subject: '', body: '' },
+  text: { text: '' },
+  phone: { phone: '' },
 }
 
 const DEFAULT_CUSTOMIZATION = { fgColor: '#1e293b', bgColor: '#ffffff', logo: null }
@@ -33,6 +37,8 @@ const QR_BUILDERS = {
   url: { validate: validateUrl, build: buildUrlValue },
   wifi: { validate: validateWifi, build: buildWifiValue },
   email: { validate: validateEmail, build: buildEmailValue },
+  text: { validate: validateText, build: buildTextValue },
+  phone: { validate: validatePhone, build: buildPhoneValue },
 }
 
 function Home() {
@@ -195,17 +201,30 @@ function Home() {
               {activeTab === 'email' && (
                 <EmailForm values={values} errors={visibleErrors} onChange={handleChange} />
               )}
+              {activeTab === 'text' && (
+                <TextQRForm values={values} errors={visibleErrors} onChange={handleChange} />
+              )}
+              {activeTab === 'phone' && (
+                <PhoneQRForm values={values} errors={visibleErrors} onChange={handleChange} />
+              )}
             </div>
             <div className="preview-panel">
-              <QRPreview
-                value={qrValue}
-                fileName={`qr-${activeTab}`}
-                fgColor={customization.fgColor}
-                bgColor={customization.bgColor}
-                logo={customization.logo}
-                aiStatus={aiState}
-                onPrepareDownload={handlePrepareDownload}
-              />
+              <div className="preview-stack">
+                <QRPreview
+                  value={qrValue}
+                  fileName={`qr-${activeTab}`}
+                  fgColor={customization.fgColor}
+                  bgColor={customization.bgColor}
+                  logo={customization.logo}
+                  aiStatus={aiState}
+                  onPrepareDownload={handlePrepareDownload}
+                />
+                {activeTab === 'phone' && qrValue && (
+                  <a className="phone-action-label" href={qrValue}>
+                    Scanning this QR will call: {qrValue.replace(/^tel:/, '')}
+                  </a>
+                )}
+              </div>
             </div>
           </div>
           <div className="customize-section">

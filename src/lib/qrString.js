@@ -1,5 +1,7 @@
 // Helpers that turn form values into the raw payload string encoded in a QR code.
 
+import { normalizePhone } from './phone.js'
+
 export function buildUrlValue({ url }) {
   const trimmed = url.trim()
   if (!trimmed) return ''
@@ -38,4 +40,14 @@ export function buildEmailValue({ email, subject, body }) {
 
   const query = params.toString()
   return `mailto:${trimmedEmail}${query ? `?${query}` : ''}`
+}
+
+export function buildTextValue({ text }) {
+  return text.trim()
+}
+
+export function buildPhoneValue({ phone }) {
+  const trimmed = phone.trim()
+  if (!trimmed) return ''
+  return `tel:${normalizePhone(trimmed)}`
 }

@@ -37,8 +37,21 @@ export const BLOCKED_DOMAINS = ['malware.com', 'phishing.net', 'fakebank.xyz']
 
 export const URL_SHORTENERS = ['bit.ly', 'tinyurl.com', 'cutt.ly', 't.co']
 
+// Phrases that suggest a Text QR is being used to share sensitive
+// credentials or run a scam, rather than ordinary plain text.
+export const SUSPICIOUS_PHRASES = [
+  'password',
+  'credit card',
+  'bank account',
+  'bitcoin wallet',
+  'free money',
+]
+
 const PROFANITY_MESSAGE =
   "This text contains language that isn't allowed. Please remove any offensive words and try again."
+
+const SUSPICIOUS_CONTENT_MESSAGE =
+  'This text looks like it contains sensitive or suspicious content (e.g. passwords, financial details) and cannot be used to generate a QR code.'
 
 const INVALID_URL_MESSAGE = 'Please enter a valid URL (e.g. https://example.com).'
 const UNSUPPORTED_PROTOCOL_MESSAGE = 'Only http:// and https:// links are supported.'
@@ -59,6 +72,7 @@ export const CONTENT_SAFETY_MESSAGES = new Set([
   UNSUPPORTED_PROTOCOL_MESSAGE,
   BLOCKED_DOMAIN_MESSAGE,
   SHORTENER_MESSAGE,
+  SUSPICIOUS_CONTENT_MESSAGE,
 ])
 
 // Splits on anything that isn't a Unicode letter/number, so words keep
@@ -178,5 +192,27 @@ export function moderateUrl(url) {
 
 /** Runs profanity moderation for free-text fields. */
 export function moderateText(text) {
+  return checkProfanity(text)
+}
+
+/** Blocks text containing phrases associated with credential/scam sharing. */
+export function checkSuspiciousContent(text) {
+  if (!text || !text.trim()) return { blocked: false }
+
+  if (containsAnyPhrase(text, SUSPICIOUS_PHRASES)) {
+    return { blocked: true, message: SUSPICIOUS_CONTENT_MESSAGE }
+  }
+
+  return { blocked: false }
+}
+
+/**
+ * Runs all checks for free-form Text QR content: suspicious/sensitive
+ * phrases, then profanity.
+ */
+export function moderateFreeText(text) {
+  const suspicious = checkSuspiciousContent(text)
+  if (suspicious.blocked) return suspicious
+
   return checkProfanity(text)
 }

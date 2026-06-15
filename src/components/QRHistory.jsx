@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import { getQRs, deleteQR } from '../firebase.js'
-import { LinkIcon, WifiIcon, MailIcon, TrashIcon } from './icons/Icons.jsx'
+import { LinkIcon, MailIcon, PhoneIcon, TextIcon, TrashIcon, WifiIcon } from './icons/Icons.jsx'
 import Button from './ui/Button.jsx'
 
-const TYPE_ICONS = { url: LinkIcon, wifi: WifiIcon, email: MailIcon }
-const TYPE_LABELS = { url: 'URL', wifi: 'Wi-Fi', email: 'Email' }
+const TYPE_ICONS = { url: LinkIcon, wifi: WifiIcon, email: MailIcon, text: TextIcon, phone: PhoneIcon }
+const TYPE_LABELS = { url: 'URL', wifi: 'Wi-Fi', email: 'Email', text: 'Text', phone: 'Phone' }
 
 function formatDate(value) {
   if (!value) return 'Just now'

@@ -52,6 +52,25 @@ export function MailIcon(props) {
   )
 }
 
+export function TextIcon(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <rect x="4" y="3" width="16" height="18" rx="2" />
+      <path d="M8 8h8" />
+      <path d="M8 12h8" />
+      <path d="M8 16h5" />
+    </svg>
+  )
+}
+
+export function PhoneIcon(props) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M5 4h3l2 5-2.5 1.5a11 11 0 0 0 5 5L14 13l5 2v3a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" />
+    </svg>
+  )
+}
+
 export function DownloadIcon(props) {
   return (
     <svg {...baseProps} {...props}>

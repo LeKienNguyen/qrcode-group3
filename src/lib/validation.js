@@ -1,6 +1,9 @@
-import { moderateText, moderateUrl } from './moderation.js'
+import { moderateFreeText, moderateText, moderateUrl } from './moderation.js'
+import { isValidPhone } from './phone.js'
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+export const TEXT_MAX_LENGTH = 2000
 
 export function validateUrl(values) {
   const errors = {}
@@ -51,6 +54,38 @@ export function validateEmail(values) {
   if (values.body.trim()) {
     const bodyModeration = moderateText(values.body)
     if (bodyModeration.blocked) errors.body = bodyModeration.message
+  }
+
+  return errors
+}
+
+export function validateText(values) {
+  const errors = {}
+  const trimmed = values.text.trim()
+
+  if (!trimmed) {
+    errors.text = 'Please enter some text.'
+  } else if (trimmed.length > TEXT_MAX_LENGTH) {
+    errors.text = `Text must be ${TEXT_MAX_LENGTH} characters or fewer.`
+  } else {
+    const moderation = moderateFreeText(trimmed)
+    if (moderation.blocked) errors.text = moderation.message
+  }
+
+  return errors
+}
+
+export function validatePhone(values) {
+  const errors = {}
+  const trimmed = values.phone.trim()
+
+  if (!trimmed) {
+    errors.phone = 'Please enter a phone number.'
+  } else if (!isValidPhone(trimmed)) {
+    errors.phone = 'Please enter a valid phone number (e.g. 0901234567 or +84901234567).'
+  } else {
+    const moderation = moderateText(trimmed)
+    if (moderation.blocked) errors.phone = moderation.message
   }
 
   return errors

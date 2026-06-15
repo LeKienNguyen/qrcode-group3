@@ -1,9 +1,11 @@
-import { LinkIcon, MailIcon, WifiIcon } from './icons/Icons.jsx'
+import { LinkIcon, MailIcon, PhoneIcon, TextIcon, WifiIcon } from './icons/Icons.jsx'
 
 export const QR_TYPES = [
   { id: 'url', label: 'URL', Icon: LinkIcon },
   { id: 'wifi', label: 'Wi-Fi', Icon: WifiIcon },
   { id: 'email', label: 'Email', Icon: MailIcon },
+  { id: 'text', label: 'Text', Icon: TextIcon },
+  { id: 'phone', label: 'Phone', Icon: PhoneIcon },
 ]
 
 function TabSelector({ active, onChange }) {

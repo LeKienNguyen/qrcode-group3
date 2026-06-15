@@ -14,12 +14,23 @@ import {
 } from 'recharts'
 import Header from '../components/Header.jsx'
 import Footer from '../components/Footer.jsx'
+import Button from '../components/ui/Button.jsx'
+import { DownloadIcon } from '../components/icons/Icons.jsx'
 import { getQRs, getBlockedAttempts, getScans } from '../firebase.js'
+import { exportQrReport } from '../lib/csv.js'
 
 const DAYS_SHOWN = 7
+const LOAD_TIMEOUT_MS = 10000
 
-const TYPE_LABELS = { url: 'URL', wifi: 'Wi-Fi', email: 'Email' }
-const TYPE_COLORS = { url: '#1d4ed8', wifi: '#0ea5e9', email: '#f59e0b' }
+function withTimeout(promise, ms, message) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error(message)), ms)),
+  ])
+}
+
+const TYPE_LABELS = { url: 'URL', wifi: 'Wi-Fi', email: 'Email', text: 'Text', phone: 'Phone' }
+const TYPE_COLORS = { url: '#1d4ed8', wifi: '#0ea5e9', email: '#f59e0b', text: '#10b981', phone: '#a855f7' }
 
 function toDate(value) {
   if (!value) return null
@@ -62,7 +73,7 @@ function buildDailyCounts(records) {
 }
 
 function buildTypeDistribution(records) {
-  const counts = { url: 0, wifi: 0, email: 0 }
+  const counts = { url: 0, wifi: 0, email: 0, text: 0, phone: 0 }
 
   records.forEach((record) => {
     if (record.type in counts) counts[record.type] += 1
@@ -132,7 +143,11 @@ function AdminPage() {
     let cancelled = false
     setStatus('loading')
 
-    Promise.all([getQRs(), getBlockedAttempts(), getScans()])
+    withTimeout(
+      Promise.all([getQRs(), getBlockedAttempts(), getScans()]),
+      LOAD_TIMEOUT_MS,
+      "Couldn't connect to Firebase. Check your Firebase configuration in .env.local.",
+    )
       .then(([qrRecords, blocked, scanRecords]) => {
         if (cancelled) return
         setQrs(qrRecords)
@@ -212,7 +227,13 @@ function AdminPage() {
       <main className="main">
         <div className="card admin-card">
           <div className="admin-section">
-            <h2 className="admin-title">Overview</h2>
+            <div className="admin-section-header">
+              <h2 className="admin-title">Overview</h2>
+              <Button variant="secondary" onClick={() => exportQrReport(qrs)} disabled={qrs.length === 0}>
+                <DownloadIcon />
+                Export CSV
+              </Button>
+            </div>
             <div className="stat-grid">
               <StatCard label="Total QR codes" value={totalQRs} />
               <StatCard label="Active QR codes" value={activeQRs} />
